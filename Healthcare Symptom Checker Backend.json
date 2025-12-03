@@ -1,0 +1,126 @@
+{
+  "name": "Healthcare Symptom Checker Backend",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "symptoms",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        240
+      ],
+      "id": "ee48ab26-f0fd-47bc-bad4-13b7b5211242",
+      "name": "Webhook Trigger",
+      "webhookId": "3435e966-74b0-4bcd-82eb-9044656b581e"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.symptoms }}",
+        "options": {
+          "systemMessage": "You are a helpful, educational healthcare assistant. \n\nRULES:\n1. Your goal is to analyze the symptoms provided and suggest *possible* causes and *general* next steps.\n2. YOU MUST NOT DIAGNOSE. \n3. START every response with this exact bold warning: \"**DISCLAIMER: This is for educational purposes only and is not medical advice. Consult a doctor for any health concerns.**\"\n4. Keep the tone calm, professional, and empathetic.\n5. Structure your answer with clear headings like 'Possible Causes', 'Recommended Actions', and 'When to see a doctor'.\n6. Format your response in clean Markdown."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -176,
+        240
+      ],
+      "id": "9347df15-8eea-4f2a-b8ca-177869f75181",
+      "name": "AI Agent (Symptom Checker)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.output } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        240
+      ],
+      "id": "4ef59688-08b2-421a-8c4d-ae74c573f01d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        448
+      ],
+      "id": "f7c558d1-3dbd-4ef5-b18e-a4e3697b589f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "ucneyfLVtOAkK1Sv",
+          "name": "Groq account 4"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent (Symptom Checker)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent (Symptom Checker)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent (Symptom Checker)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ddb60cc-9667-44fe-9d04-05310c47a4e0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "73671340a203a21b915c45015f6a88bc5e3041fd7dcfe4c3b63c6c245a633118"
+  },
+  "id": "WXs2aYxv4L0tJgj5",
+  "tags": []
+}
